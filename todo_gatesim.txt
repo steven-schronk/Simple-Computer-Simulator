@@ -1,0 +1,17 @@
+gatesim todo list
+
+Blocks do not move based on global coordinate system as they should.
+
+Blocks need to be dragged from one square to another.
+
+	They should move from one block to another when the mouse is > halfway across the block.
+
+Need squares to be a grid in the background to illustrate to a new user how the snaps work.
+
+All other gate icons accept NAND need to be created and implemented.
+
+Need to implement method to save state for user from one visit to another.
+
+Input and output colors do not change in Internet Explorer.
+
+Clock speed setting does not work in Internet Explorer.

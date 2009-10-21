@@ -1,0 +1,593 @@
+<html>
+<head>
+
+<title>Computer Simulator</title>
+
+<style type="text/css">
+
+.box {
+	background-repeat:no-repeat;
+	background-image:url('gfx/nand.gif');
+	width: 72px;
+	height: 72px;
+	color: #000000;
+	padding: 0px;
+	position: absolute;
+	cursor: move;
+}
+
+.cross {
+  background-repeat:no-repeat;
+  background-image:url('gfx/cross.gif');
+  width: 72px;
+  height: 72px;
+  color: #000000;
+  padding: 0px;
+  position: absolute;
+  cursor: move;
+}
+
+.teeleft {
+  background-repeat:no-repeat;
+  background-image:url('gfx/teeleft.gif');
+  width: 72px;
+  height: 72px;
+  color: #000000;
+  padding: 0px;
+  position: absolute;
+  cursor: move;
+}
+
+#main {
+	top: 210px;
+	width: 98%;
+	height: 75%;
+	border-style: solid;
+	border-width: 3px;
+  border-color: #66b;
+  position: absolute;
+  background-image: url('gfx/square.gif');
+}
+
+#title {
+  font-family: tahoma, sans-serif;
+  font-size: 25px;
+  font-style: bold;
+  color: #66b;
+}
+
+#version {
+  font-family: tahoma, sans-serif;
+  font-size: 10px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  color: #f00;
+}
+
+/*
+.input {
+  position: relative;
+  padding: 7px;
+  margin: 1px;
+  width: 25px;
+  height: 15px;
+  border: 1px solid #000;
+  background-color: #27cd36;
+  cursor:pointer;
+  color: #fff;
+  display: inline;
+  }
+*/
+
+.input {
+    background-color: #000;
+    color: #fff;
+    padding: 5px;
+    margin: 1px;
+    /* cursor:pointer; */
+}
+
+.ios {
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.clock {
+  border: 2px solid #66b;
+  width: 120px;
+  position: absolute;
+  top: 100px;
+  left: 10px;
+  padding: 5px;
+}
+
+.inputs {
+  border: 2px solid #66b;
+  width: 300px;
+  position: absolute;
+  top: 100px;
+  left: 160px;
+  padding: 5px;
+}
+
+.outputs {
+  border: 2px solid #66b;
+  width: 325px;
+  position: absolute;
+  top: 100px;
+  left: 495px;
+  padding: 5px;
+}
+
+.debug {
+  border: 2px solid #66b;
+  width: 275px;
+  position: absolute;
+  top: 100px;
+  left: 850px;
+  padding: 5px;
+}
+
+.desc {
+  color: #66b;
+  font-family: tahoma, sans-serif;
+  font-size: 35px;
+  left: 175px;
+}
+
+</style>
+<script type="text/javascript">
+
+var snap = 72; // objects snap on to this number of pixels
+
+var IOInput = new Object(); // create IO for computer
+// TODO: find shorter way to express this...
+IOInput[0] = 0;  // set default input and output bits
+IOInput[1] = 0;
+IOInput[2] = 0;
+IOInput[3] = 0;
+IOInput[4] = 0;
+IOInput[5] = 0;
+IOInput[6] = 0;
+IOInput[7] = 0;
+
+var clock = 0;              // current state of Q in clock
+var clock_id = 0;           // used to stop clock when needed
+
+function StartClock()
+{
+  document.getElementById("stop").disabled = false;
+  document.getElementById("start").disabled = true;
+  clock_id = setTimeout( "StartClock()", document.getElementById("speed").value);
+  AdvanceClock();
+}
+
+function StopClock()
+{
+  document.getElementById("stop").disabled = true;
+  document.getElementById("start").disabled = false;
+  clearTimeout(clock_id);
+  clock_id = 0;
+}
+
+function AdvanceClock()
+{
+
+  if(clock == 0)
+  {
+    document.getElementById("clock_notq").style.background ='#000';
+    document.getElementById("clock_notq").style.color = '#fff';
+
+    document.getElementById("clock_q").style.background = '#27cd36';
+    document.getElementById("clock_q").style.color = '#000';
+    clock = 1;
+
+  } else {
+
+    document.getElementById("clock_notq").style.background = '#27cd36';
+    document.getElementById("clock_notq").style.color = '#000';
+
+    document.getElementById("clock_q").style.background ='#000';
+    document.getElementById("clock_q").style.color = '#fff';
+    clock = 0;
+  }
+}
+
+function Reset()
+{
+	if (confirm("Are You Sure You Want To Delete Your Work?"))
+  {
+		document.getElementById("main").innerHTML = "";
+	}
+}
+
+function flip_bit(event, id)
+{
+  var temp;
+
+  /*
+  if (id)
+    temp = document.getElementById(id);
+  else {
+    if (browser.isIE)
+      temp = window.event.srcElement;
+    if (browser.isNS)
+      temp = event.target.id; // NOTE: ADDED .id TO END TO FIX ISSUE
+  }
+  */
+
+  if (browser.isIE)
+    temp = window.event.srcElement;
+  if (browser.isNS)
+    temp = event.target.id; // NOTE: ADDED .id TO END TO FIX ISSUE
+
+  // TODO: clicking buttons not fliping correct bit in IOInput
+
+  if(IOInput[id] == 0)
+  {
+    IOInput[id] = 1;
+    document.getElementById(temp).style.background = '#27cd36';
+    document.getElementById(temp).style.color = '#000';
+  } else {
+    IOInput[id] = 0;
+    document.getElementById(temp).style.background ='#000';
+    document.getElementById(temp).style.color = '#fff';
+  }
+
+//  alert( "" + IOInput[0] + "" + IOInput[1] + "" + IOInput[2] + "" + IOInput[3] + "" + IOInput[4]);
+
+}
+
+function CreateNAND()
+{
+
+	var content = document.getElementById("main");
+
+	content.innerHTML = content.innerHTML + '<div id="boxB" class="box" onmousedown="dragStart(event)"></div>';
+}
+
+function CreateCross()
+{
+  var content = document.getElementById("main");
+
+  content.innerHTML = content.innerHTML + '<div id="boxB" class="cross" onmousedown="dragStart(event)"></div>';
+}
+
+function CreateTeeLeft()
+{
+  var content = document.getElementById("main");
+
+  content.innerHTML = content.innerHTML + '<div id="boxB" class="teeleft" onmousedown="dragStart(event)"></div>';
+}
+
+function DrawLineStart(event)
+{
+
+  var x, y; // position of cursor in browser
+        if (browser.isIE)
+        {
+          x = window.event.clientX + document.documentElement.scrollLeft
+            + document.body.scrollLeft;
+          y = window.event.clientY + document.documentElement.scrollTop
+            + document.body.scrollTop;
+        }
+        if (browser.isNS)
+        {
+          x = event.clientX + window.scrollX;
+          y = event.clientY + window.scrollY;
+        }
+
+       window.status="X:" + x + "\t\tY:" + y;
+
+  // change mouse icon of cursor
+  document.body.style.cursor = 'crosshair';
+
+  // when mouse is clicked -- if first click connect to handle on gate
+  // if not first click, draw orthogonal line from handle to endpoint.
+
+}
+
+
+// If in draw line mode, as mouse moves from point to point...
+// highlight handle that can be clicked on if we are close to it.
+function PossiblePointsToDrawLine()
+{
+  document.body.style.cursor = 'crosshair';
+}
+
+function DrawLineStop()
+{
+  document.body.style.cursor = 'auto';
+}
+
+// Determine browser and version.
+function Browser()
+{
+
+  var ua, s, i;
+
+  this.isIE    = false;
+  this.isNS    = false;
+  this.version = null;
+
+  ua = navigator.userAgent;
+
+  s = "MSIE";
+  if ((i = ua.indexOf(s)) >= 0)
+  {
+    this.isIE = true;
+    this.version = parseFloat(ua.substr(i + s.length));
+    return;
+  }
+
+  s = "Netscape6/";
+  if ((i = ua.indexOf(s)) >= 0)
+  {
+    this.isNS = true;
+    this.version = parseFloat(ua.substr(i + s.length));
+    return;
+  }
+
+  // Treat any other "Gecko" browser as NS 6.1.
+
+  s = "Gecko";
+  if ((i = ua.indexOf(s)) >= 0)
+  {
+    this.isNS = true;
+    this.version = 6.1;
+    return;
+  }
+}
+
+var browser = new Browser();
+
+
+// Global object to hold drag information.
+
+var dragObj = new Object();
+dragObj.zIndex = 0;
+
+function dragStart(event, id)
+{
+  var el;
+  var x, y;
+
+  // If an element id was given, find it. Otherwise use the element being
+  // clicked on.
+
+  if (id)
+  {
+    dragObj.elNode = document.getElementById(id);
+  } else {
+    if (browser.isIE)
+      dragObj.elNode = window.event.srcElement;
+    if (browser.isNS)
+      dragObj.elNode = event.target;
+
+    // If this is a text node, use its parent element.
+
+    if (dragObj.elNode.nodeType == 3)
+      dragObj.elNode = dragObj.elNode.parentNode;
+  }
+
+  // Get cursor position with respect to the page.
+
+  if (browser.isIE)
+  {
+    x = window.event.clientX + document.documentElement.scrollLeft
+      + document.body.scrollLeft;
+    y = window.event.clientY + document.documentElement.scrollTop
+      + document.body.scrollTop;
+  }
+  if (browser.isNS)
+  {
+    x = event.clientX + window.scrollX;
+    y = event.clientY + window.scrollY;
+  }
+
+  // Save starting positions of cursor and element.
+
+  dragObj.cursorStartX = x;
+  dragObj.cursorStartY = y;
+  dragObj.elStartLeft  = parseInt(dragObj.elNode.style.left, 10);
+  dragObj.elStartTop   = parseInt(dragObj.elNode.style.top,  10);
+
+  if (isNaN(dragObj.elStartLeft)) dragObj.elStartLeft = 0;
+  if (isNaN(dragObj.elStartTop))  dragObj.elStartTop  = 0;
+
+  // Update element's z-index.
+
+  dragObj.elNode.style.zIndex = ++dragObj.zIndex;
+
+  // Capture mousemove and mouseup events on the page.
+
+  if (browser.isIE)
+  {
+    document.attachEvent("onmousemove", dragGo);
+    document.attachEvent("onmouseup",   dragStop);
+    window.event.cancelBubble = true;
+    window.event.returnValue = false;
+  }
+  if (browser.isNS)
+  {
+    document.addEventListener("mousemove", dragGo,   true);
+    document.addEventListener("mouseup",   dragStop, true);
+    event.preventDefault();
+  }
+}
+
+function dragGo(event)
+{
+
+  var x, y;
+
+  // Get cursor position with respect to the page.
+
+  if (browser.isIE)
+  {
+    x = window.event.clientX + document.documentElement.scrollLeft
+      + document.body.scrollLeft;
+    y = window.event.clientY + document.documentElement.scrollTop
+      + document.body.scrollTop;
+  }
+  if (browser.isNS)
+  {
+    x = event.clientX + window.scrollX;
+    y = event.clientY + window.scrollY;
+  }
+
+  // Move drag element by the same amount the cursor has moved.
+  // But only if equal or greater than a snap unit...
+
+  // TODO: snaps do not seem to work at all
+  if(x%snap == 0){ dragObj.elNode.style.left = (dragObj.elStartLeft + x - dragObj.cursorStartX) + "px"; }
+  if(y%snap == 0){ dragObj.elNode.style.top = (dragObj.elStartTop + y - dragObj.cursorStartY) + "px"; }
+
+  //dragObj.elNode.style.top  = (dragObj.elStartTop  + y - dragObj.cursorStartY) + "px";
+
+  window.status="X:" + x + "\t\tY:" + y;
+
+  if (browser.isIE)
+  {
+    window.event.cancelBubble = true;
+    window.event.returnValue = false;
+  }
+  if (browser.isNS)
+  {
+    event.preventDefault();
+  }
+}
+
+function dragStop(event)
+{
+
+  // Stop capturing mousemove and mouseup events.
+
+  if (browser.isIE)
+  {
+    document.detachEvent("onmousemove", dragGo);
+    document.detachEvent("onmouseup",   dragStop);
+  }
+  if (browser.isNS)
+  {
+    document.removeEventListener("mousemove", dragGo,   true);
+    document.removeEventListener("mouseup",   dragStop, true);
+  }
+}
+
+</script>
+
+
+</head>
+
+<body>
+
+  <div id="title">Computer Simulator</div>
+  <div id="version">Version 0.0.1</div>
+
+  <div id=main_menu>
+
+    <!--
+    <button onClick="CreateCross()">Create Cross</button>
+    <button onClick="CreateTeeLeft()">Create Tee Left</button>
+    -->
+
+    <button onClick="">IN</button>
+    <button onClick="">OUT</button>
+    <button onClick="">AND</button>
+    <button onClick="">OR</button>
+    <button onClick="CreateNAND()">NAND</button>
+    <button onClick="">NOR</button>
+    <button onClick="">NOT</button>
+    <button onClick="CreateNAND()">XOR</button>
+
+
+    <button onClick="DrawLineStart(event)">Draw Connection</button>
+    <button onClick="DrawLineStop()">Delete Connection</button>
+
+    <button onClick="Reset()">Reset</button><br>
+
+
+    <!-- <img src="gfx/nand.gif"><img src="gfx/cross.gif"> -->
+
+    <div class="ios">
+
+      <div class="clock">
+        <div class="desc">CLOCK</div>
+        <!-- THESE ARE THE COMPUTER'S CLOCK OUTPUTS-->
+        <button id="clock_q"  disabled class="input" onClick="flip_bit(event)">Q</button>
+        <button id="clock_notq"  disabled class="input" onClick="flip_bit(event)" style="background: #27cd36;">Q</button>
+      </div>
+
+      <div class="inputs">
+        <div class="desc">INPUT</div>
+        <!-- THESE ARE THE COMPUTER'S INPUTS -->
+        <button id="input_a" class="input" onClick="flip_bit(event, '0')">A</button>
+        <button id="input_b" class="input" onClick="flip_bit(event, '1')">B</button>
+        <button id="input_c" class="input" onClick="flip_bit(event, '2')">C</button>
+        <button id="input_d" class="input" onClick="flip_bit(event, '3')">D</button>
+        <button id="input_e" class="input" onClick="flip_bit(event, '4')">E</button>
+        <button id="input_f" class="input" onClick="flip_bit(event, '5')">F</button>
+        <button id="input_g" class="input" onClick="flip_bit(event, '6')">G</button>
+        <button id="input_h" class="input" onClick="flip_bit(event, '7')">H</button>
+      </div>
+
+      <div class="outputs">
+        <div class="desc">OUTPUT</div>
+        <!-- THESE ARE THE COMPUTER'S OUTPUTS -->
+        <button id="output_1" disabled class="input">1</button>
+        <button id="output_2" disabled class="input">2</button>
+        <button id="output_3" disabled class="input">3</button>
+        <button id="output_4" disabled class="input">4</button>
+        <button id="output_5" disabled class="input">5</button>
+        <button id="output_6" disabled class="input">6</button>
+        <button id="output_7" disabled class="input">7</button>
+        <button id="output_8" disabled class="input">8</button>
+      </div>
+
+      <div class="debug">
+        <div class="desc">DEBUG</div>
+          <button id="start" style="background: #27cd36;" class="input" onClick="StartClock()">Start</button>
+          <button id="stop" disabled style="background: #f00;" class="input" onClick="StopClock()">Stop</button>
+          <button id="next"  style="background: #0000ff;" class="input" onClick="AdvanceClock()">Next</button>
+          Speed:
+          <select id="speed">
+            <option>125</option>
+            <option>250</option>
+            <option>500</option>
+            <option>1000</option>
+            <option>1500</option>
+            <option>2000</option>
+          </select>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id=main onMouseMove="PossiblePointsToDrawLine(event)">
+
+  <!--
+  <img src="gfx\line_1.gif" width="100px" height="2px"><br><br><br><br><br><br>
+
+  <img src="gfx\line_1.gif" width="100px" height="2px">
+
+  <img src="gfx\line_1.gif" width="2px" height="100px">
+  -->
+
+
+  <!--
+
+  <div id="boxB" class="box" onmousedown="dragStart(event)"></div>
+
+  <div id="boxB" class="box" onmousedown="dragStart(event)"></div>
+
+  <div id="boxA" class="box" onmousedown="dragStart(event)"></div>
+
+  -->
+
+  </div>
+
+</body>
+</html>

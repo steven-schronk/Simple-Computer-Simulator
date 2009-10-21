@@ -1,0 +1,6 @@
+gates todo list
+
+Need to display more attractive user interface to the user.
+
+1's and 0's need to be much larger and need a gate graphic next to them.
+
