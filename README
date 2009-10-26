@@ -1,0 +1,25 @@
+The Simple-Computer-Simulator is designed to allow a beginning
+computer science student have the opportunity to create a working computer
+simulation.
+
+The design of this was intended to support the widest audience possible and
+as a result, I have chosen to select DHTML as the medium for delivery.
+This should allow all students to have access without the need for additional
+software or tools.
+
+The program comes in two basic parts:
+
+The first part provides a description of simple logic gates, along with a
+working demonstration of each.
+
+The second part allows a student to link the gates together to form more 
+complex logic circuits that will illustrate how digital circuits are designed.
+
+Each of these sections will come with a complete set of reading material
+on-line in addition to a progressive set of questions to provide the student
+with much-needed practice.
+
+The long term intent is to create a set of open course-ware for students
+to study computer science.
+
+Steven Schronk
