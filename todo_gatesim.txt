@@ -15,3 +15,5 @@ Need to implement method to save state for user from one visit to another.
 Input and output colors do not change in Internet Explorer.
 
 Clock speed setting does not work in Internet Explorer.
+
+Should not be able to drag items outside designated area of page.

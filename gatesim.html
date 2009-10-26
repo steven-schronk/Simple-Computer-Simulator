@@ -1,7 +1,7 @@
 <html>
 <head>
 
-<title>Computer Simulator</title>
+<title>Simple Computer Simulator</title>
 
 <style type="text/css">
 
@@ -139,7 +139,7 @@
 </style>
 <script type="text/javascript">
 
-var snap = 72; // objects snap on to this number of pixels
+var snap = 25; // objects snap on to this number of pixels
 
 var IOInput = new Object(); // create IO for computer
 // TODO: find shorter way to express this...
@@ -263,7 +263,6 @@ function CreateTeeLeft()
 
 function DrawLineStart(event)
 {
-
   var x, y; // position of cursor in browser
         if (browser.isIE)
         {
@@ -350,12 +349,12 @@ dragObj.zIndex = 0;
 
 function dragStart(event, id)
 {
+	window.status="DragStart";
   var el;
   var x, y;
 
   // If an element id was given, find it. Otherwise use the element being
   // clicked on.
-
   if (id)
   {
     dragObj.elNode = document.getElementById(id);
@@ -372,7 +371,6 @@ function dragStart(event, id)
   }
 
   // Get cursor position with respect to the page.
-
   if (browser.isIE)
   {
     x = window.event.clientX + document.documentElement.scrollLeft
@@ -387,7 +385,6 @@ function dragStart(event, id)
   }
 
   // Save starting positions of cursor and element.
-
   dragObj.cursorStartX = x;
   dragObj.cursorStartY = y;
   dragObj.elStartLeft  = parseInt(dragObj.elNode.style.left, 10);
@@ -423,7 +420,6 @@ function dragGo(event)
   var x, y;
 
   // Get cursor position with respect to the page.
-
   if (browser.isIE)
   {
     x = window.event.clientX + document.documentElement.scrollLeft
@@ -437,16 +433,29 @@ function dragGo(event)
     y = event.clientY + window.scrollY;
   }
 
+	// verify that the cursor is not outside of editor's box...
+	// TODO: These values are hard set and should be set to container box.
+	if (x < 44 | x > 1000 | y < 279 | y > 750) { } else {
+
   // Move drag element by the same amount the cursor has moved.
   // But only if equal or greater than a snap unit...
 
   // TODO: snaps do not seem to work at all
   if(x%snap == 0){ dragObj.elNode.style.left = (dragObj.elStartLeft + x - dragObj.cursorStartX) + "px"; }
   if(y%snap == 0){ dragObj.elNode.style.top = (dragObj.elStartTop + y - dragObj.cursorStartY) + "px"; }
+	//window.status="X:" + x + " Y:" + y;
+	window.status="X:" + dragObj.elNode.style.left + "Y:" + dragObj.elNode.style.top;
+	//window.status=x;
+
+	}
+
+
+	// TODO: Use modulus of coordinates to store X and Y position of part on grid.
+	// 		This will provide a position of: 1,2 for this part.
+	//		These coordinates can be stored in a data structure for tracking IO later.
 
   //dragObj.elNode.style.top  = (dragObj.elStartTop  + y - dragObj.cursorStartY) + "px";
-
-  window.status="X:" + x + "\t\tY:" + y;
+  //window.status="X:" + x + "\t\tY:" + y;
 
   if (browser.isIE)
   {
@@ -483,7 +492,7 @@ function dragStop(event)
 
 <body>
 
-  <div id="title">Computer Simulator</div>
+  <div id="title">Simple Computer Simulator</div>
   <div id="version">Version 0.0.1</div>
 
   <div id=main_menu>
